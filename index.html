@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Mi Lista de Regalos de Cumpleaños!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-100 min-h-full text-slate-800 flex flex-col justify-between">
+
+    <!-- HEADER / HERO -->
+    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-pink-100">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-r from-pink-500 to-purple-600 p-2.5 rounded-2xl text-white shadow-md shadow-pink-500/20">
+                    <i class="fa-solid fa-gift text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-900 leading-tight">Mi Cumpleaños</h1>
+                    <p class="text-xs text-slate-500">Lista de Regalos</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button onclick="abrirAdmin()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2 rounded-xl transition font-medium flex items-center space-x-1">
+                    <i class="fa-solid fa-lock text-[10px]"></i>
+                    <span class="hidden sm:inline">Administrar</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-5xl mx-auto px-4 py-8 flex-grow w-full">
+        
+        <!-- BIENVENIDA -->
+        <div class="text-center mb-10">
+            <span class="bg-pink-100 text-pink-600 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-3">¡Estás invitado!</span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-3">Lista de Regalos de Gi 💜</h2>
+            <p class="text-slate-600 max-w-xl mx-auto text-sm sm:text-base">
+                ¡Hola! Aquí tienes algunas ideas de regalos que me encantarían. Si decides regalarme algo, puedes marcarlo como "Elegido" para que nadie más lo repita y se mantenga la sorpresa. 🎁 
+                <span class="font-bold text-red-600 block mt-2">para descuentos en Punto Farma y Farmacenter utilizar este nro de CI.: 4.787.775</span>
+            </p>
+        </div>
+
+        <!-- FILTROS / BUSCADOR -->
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
+            <div class="relative w-full sm:w-72">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="buscador" oninput="renderizarRegalos()" placeholder="Buscar regalo..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 shadow-sm">
+            </div>
+            <div class="flex items-center space-x-2 w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
+                <button onclick="cambiarFiltro('todos')" id="btn-todos" class="px-4 py-2 rounded-xl text-xs font-semibold bg-pink-600 text-white shadow-sm shadow-pink-500/20 transition">Todos</button>
+                <button onclick="cambiarFiltro('disponibles')" id="btn-disponibles" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Disponibles</button>
+                <button onclick="cambiarFiltro('reservados')" id="btn-reservados" class="px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition">Elegidos</button>
+            </div>
+        </div>
+
+        <!-- GRID DE REGALOS -->
+        <div id="grid-regalos" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Los regalos se cargan dinámicamente aquí -->
+        </div>
+
+        <!-- ESTADO VACÍO -->
+        <div id="estado-vacio" class="hidden text-center py-16">
+            <div class="bg-pink-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-pink-400 text-2xl">
+                <i class="fa-solid fa-box-open"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-700">No se encontraron regalos</h3>
+            <p class="text-slate-400 text-sm mt-1">Intenta con otra búsqueda o agrega nuevos regalos desde el panel.</p>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white/50 border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-12">
+        <p>Hecho con ❤️ para un cumpleaños inolvidable.</p>
+    </footer>
+
+    <!-- MODAL DE ADMINISTRACIÓN (PIN: 1004) -->
+    <div id="modal-admin" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-200">
+            <button onclick="cerrarAdmin()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <!-- Vista PIN -->
+            <div id="vista-pin">
+                <div class="text-center mb-6">
+                    <div class="bg-purple-100 text-purple-600 w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3 text-lg">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">Panel de Administración</h3>
+                    <p class="text-xs text-slate-500 mt-1">Ingresa el PIN de seguridad para gestionar los regalos.</p>
+                </div>
+                <form onsubmit="verificarPin(event)" class="space-y-4">
+                    <div>
+                        <input type="password" id="input-pin" maxlength="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-2xl shadow-lg shadow-purple-500/25 transition">
+                        Entrar
+                    </button>
+                </form>
+            </div>
+
+            <!-- Vista Panel Administrador -->
+            <div id="vista-panel" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="titulo-form-accion" class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-circle-plus text-purple-600"></i>
+                        <span>Agregar Nuevo Regalo</span>
+                    </h3>
+                    <button id="btn-cancelar-edicion" onclick="resetearFormulario()" class="hidden text-xs text-rose-500 hover:underline">Cancelar edición</button>
+                </div>
+
+                <form onsubmit="guardarRegaloAdmin(event)" class="space-y-3 mb-6">
+                    <input type="hidden" id="edit-id" value="">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Título del regalo</label>
+                        <input type="text" id="nuevo-titulo" placeholder="Ej. Zapatillas deportivas" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Subir imagen JPG / PNG (o enlace web)</label>
+                        <input type="file" id="input-archivo-img" accept="image/jpeg, image/png, image/jpg" onchange="convertirImagenLocal(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 mb-2">
+                        <input type="url" id="nuevo-imagen" placeholder="O pega un link web de imagen (opcional)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Link de tienda (opcional)</label>
+                        <input type="url" id="nuevo-link" placeholder="https://tienda.com/producto" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Descripción corta (opcional)</label>
+                        <input type="text" id="nuevo-desc" placeholder="Talle 42, color negro" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <button type="submit" id="btn-submit-regalo" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 rounded-xl text-sm shadow-md shadow-purple-500/20 transition">
+                        Guardar Regalo
+                    </button>
+                </form>
+
+                <div class="border-t border-slate-100 pt-4">
+                    <h4 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Lista actual de administración</h4>
+                    <div id="lista-admin" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        <!-- Elementos de admin -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FIREBASE SDKs (Modular v10) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAaKsvy2fbtMoNdG1DytdJjgB1ZX6AAkAs",
+            authDomain: "listaregalos-228a5.firebaseapp.com",
+            projectId: "listaregalos-228a5",
+            storageBucket: "listaregalos-228a5.firebasestorage.app",
+            messagingSenderId: "119228393816",
+            appId: "1:119228393816:web:93117fb8299efeab445d2d"
+        };
+
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let regalos = [];
+        let filtroActual = 'todos';
+
+        // Cargar regalos desde Firestore en tiempo real
+        async function cargarRegalosDesdeNube() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "regalos"));
+                regalos = [];
+                querySnapshot.forEach((documento) => {
+                    regalos.push({ id: documento.id, ...documento.data() });
+                });
+
+                // Si la base de datos está vacía, cargamos 4 iniciales por defecto
+                if (regalos.length === 0) {
+                    const iniciales = [
+                        { id: "1", titulo: "Zapatillas Urbanas", imagen: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&auto=format&fit=crop&q=60", link: "#", desc: "Talle 42 - Color rojo o negro", reservado: false },
+                        { id: "2", titulo: "Perfume Favorito", imagen: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=400&auto=format&fit=crop&q=60", link: "#", desc: "Eau de Toilette 100ml", reservado: false },
+                        { id: "3", titulo: "Mochila para Laptop", imagen: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&auto=format&fit=crop&q=60", link: "#", desc: "Impermeable, espacio de 15.6 pulgadas", reservado: true },
+                        { id: "4", titulo: "Libro de Cocina o Novela", imagen: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400&auto=format&fit=crop&q=60", link: "#", desc: "Cualquier edición recomendada de misterio", reservado: false }
+                    ];
+                    for (let reg of iniciales) {
+                        await setDoc(doc(db, "regalos", reg.id), reg);
+                        regalos.push(reg);
+                    }
+                }
+                renderizarRegalos();
+                if(!document.getElementById('vista-panel').classList.contains('hidden')) {
+                    actualizarListaAdmin();
+                }
+            } catch (error) {
+                console.error("Error al cargar regalos:", error);
+            }
+        }
+
+        window.renderizarRegalos = function() {
+            const grid = document.getElementById('grid-regalos');
+            const estadoVacio = document.getElementById('estado-vacio');
+            const buscador = document.getElementById('buscador').value.toLowerCase();
+
+            grid.innerHTML = '';
+
+            let filtrados = regalos.filter(r => {
+                const coincideTexto = r.titulo.toLowerCase().includes(buscador) || (r.desc && r.desc.toLowerCase().includes(buscador));
+                if (filtroActual === 'disponibles') return coincideTexto && !r.reservado;
+                if (filtroActual === 'reservados') return coincideTexto && r.reservado;
+                return coincideTexto;
+            });
+
+            if (filtrados.length === 0) {
+                estadoVacio.classList.remove('hidden');
+            } else {
+                estadoVacio.classList.add('hidden');
+            }
+
+            filtrados.forEach(r => {
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-3xl border transition-all duration-300 overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md ${r.reservado ? 'border-pink-200 bg-pink-50/30' : 'border-slate-100'}`;
+                
+                let imagenSrc = r.imagen && r.imagen.trim() !== '' ? r.imagen : 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?w=400&auto=format&fit=crop&q=60';
+
+                card.innerHTML = `
+                    <div>
+                        <div class="relative h-48 bg-slate-100 overflow-hidden">
+                            <img src="${imagenSrc}" alt="${r.titulo}" class="w-full h-full object-cover transition duration-500 hover:scale-105">
+                            ${r.reservado ? '<span class="absolute top-3 right-3 bg-pink-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md"><i class="fa-solid fa-check mr-1"></i> Elegido</span>' : '<span class="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-slate-700 text-xs font-semibold px-3 py-1 rounded-full shadow-sm">Disponible</span>'}
+                        </div>
+                        <div class="p-5">
+                            <h3 class="font-bold text-slate-900 text-base mb-1">${r.titulo}</h3>
+                            <p class="text-slate-500 text-xs mb-3 line-clamp-2">${r.desc || 'Sin descripción adicional.'}</p>
+                            ${r.link && r.link.trim() !== '#' && r.link.trim() !== '' ? `<a href="${r.link}" target="_blank" class="text-xs text-pink-600 hover:text-pink-700 font-medium inline-flex items-center space-x-1 mb-2"><i class="fa-solid fa-external-link-alt text-[10px]"></i><span>Ver tienda recomendada</span></a>` : ''}
+                        </div>
+                    </div>
+                    <div class="px-5 pb-5 pt-2">
+                        ${r.reservado 
+                            ? `<button onclick="cambiarEstado('${r.id}', false)" class="w-full py-2.5 px-4 rounded-2xl text-xs font-semibold bg-slate-100 text-slate-500 hover:bg-slate-200 transition">Cancelar reserva</button>`
+                            : `<button onclick="cambiarEstado('${r.id}', true)" class="w-full py-2.5 px-4 rounded-2xl text-xs font-semibold bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md shadow-pink-500/20 hover:opacity-95 transition">¡Elegir este regalo! 🎁</button>`
+                        }
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        window.cambiarEstado = async function(id, nuevoEstado) {
+            const mensaje = nuevoEstado ? "¿Deseas marcar este regalo como elegido? Así los demás invitados sabrán que ya está tomado." : "¿Deseas liberar este regalo para que vuelva a estar disponible?";
+            if (confirm(mensaje)) {
+                try {
+                    await updateDoc(doc(db, "regalos", id), { reservado: nuevoEstado });
+                    if (nuevoEstado) alert("¡Listo! El regalo ha sido marcado como elegido. 🎁");
+                    await cargarRegalosDesdeNube();
+                } catch (error) {
+                    console.error("Error al actualizar estado:", error);
+                }
+            }
+        }
+
+        window.cambiarFiltro = function(tipo) {
+            filtroActual = tipo;
+            ['todos', 'disponibles', 'reservados'].forEach(t => {
+                const btn = document.getElementById(`btn-${t}`);
+                if (t === tipo) {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-semibold bg-pink-600 text-white shadow-sm shadow-pink-500/20 transition";
+                } else {
+                    btn.className = "px-4 py-2 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 transition";
+                }
+            });
+            renderizarRegalos();
+        }
+
+        // Panel de Administración
+        window.abrirAdmin = function() {
+            document.getElementById('modal-admin').classList.remove('hidden');
+            document.getElementById('vista-pin').classList.remove('hidden');
+            document.getElementById('vista-panel').classList.add('hidden');
+            document.getElementById('input-pin').value = '';
+        }
+
+        window.cerrarAdmin = function() {
+            document.getElementById('modal-admin').classList.add('hidden');
+            window.resetearFormulario();
+        }
+
+        window.verificarPin = function(e) {
+            e.preventDefault();
+            const pin = document.getElementById('input-pin').value;
+            if (pin === '1004') {
+                document.getElementById('vista-pin').classList.add('hidden');
+                document.getElementById('vista-panel').classList.remove('hidden');
+                actualizarListaAdmin();
+            } else {
+                alert('PIN incorrecto.');
+                document.getElementById('input-pin').value = '';
+            }
+        }
+
+        window.convertirImagenLocal = function(event) {
+            const archivo = event.target.files[0];
+            if (archivo) {
+                const lector = new FileReader();
+                lector.onload = function(e) {
+                    document.getElementById('nuevo-imagen').value = e.target.result;
+                };
+                lector.readAsDataURL(archivo);
+            }
+        }
+
+        window.guardarRegaloAdmin = async function(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-id').value;
+            const titulo = document.getElementById('nuevo-titulo').value;
+            const imagen = document.getElementById('nuevo-imagen').value;
+            const link = document.getElementById('nuevo-link').value;
+            const desc = document.getElementById('nuevo-desc').value;
+
+            try {
+                if (editId) {
+                    const regaloExistente = regalos.find(r => r.id === editId);
+                    await updateDoc(doc(db, "regalos", editId), {
+                        titulo,
+                        imagen: imagen || regaloExistente.imagen,
+                        link,
+                        desc
+                    });
+                    alert('¡Regalo actualizado con éxito!');
+                } else {
+                    const nuevoId = Date.now().toString();
+                    const nuevo = {
+                        titulo,
+                        imagen: imagen || 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?w=400&auto=format&fit=crop&q=60',
+                        link,
+                        desc,
+                        reservado: false
+                    };
+                    await setDoc(doc(db, "regalos", nuevoId), nuevo);
+                    alert('¡Regalo agregado con éxito!');
+                }
+                await cargarRegalosDesdeNube();
+                window.resetearFormulario();
+            } catch (error) {
+                console.error("Error al guardar:", error);
+            }
+        }
+
+        window.prepararEdicion = function(id) {
+            const r = regalos.find(item => item.id === id);
+            if (!r) return;
+
+            document.getElementById('edit-id').value = r.id;
+            document.getElementById('nuevo-titulo').value = r.titulo;
+            document.getElementById('nuevo-imagen').value = r.imagen;
+            document.getElementById('nuevo-link').value = r.link || '';
+            document.getElementById('nuevo-desc').value = r.desc || '';
+            document.getElementById('input-archivo-img').value = '';
+
+            document.getElementById('titulo-form-accion').innerHTML = `<i class="fa-solid fa-pen-to-square text-purple-600"></i><span>Editar Regalo</span>`;
+            document.getElementById('btn-submit-regalo').innerText = 'Actualizar Regalo';
+            document.getElementById('btn-cancelar-edicion').classList.remove('hidden');
+        }
+
+        window.resetearFormulario = function() {
+            document.getElementById('edit-id').value = '';
+            document.getElementById('nuevo-titulo').value = '';
+            document.getElementById('nuevo-imagen').value = '';
+            document.getElementById('nuevo-link').value = '';
+            document.getElementById('nuevo-desc').value = '';
+            document.getElementById('input-archivo-img').value = '';
+
+            document.getElementById('titulo-form-accion').innerHTML = `<i class="fa-solid fa-circle-plus text-purple-600"></i><span>Agregar Nuevo Regalo</span>`;
+            document.getElementById('btn-submit-regalo').innerText = 'Guardar Regalo';
+            document.getElementById('btn-cancelar-edicion').classList.add('hidden');
+        }
+
+        window.eliminarRegalo = async function(id) {
+            if (confirm('¿Estás seguro de eliminar este regalo de la lista?')) {
+                try {
+                    await deleteDoc(doc(db, "regalos", id));
+                    await cargarRegalosDesdeNube();
+                    window.resetearFormulario();
+                } catch (error) {
+                    console.error("Error al eliminar:", error);
+                }
+            }
+        }
+
+        window.actualizarListaAdmin = function() {
+            const lista = document.getElementById('lista-admin');
+            lista.innerHTML = '';
+            regalos.forEach(r => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs";
+                item.innerHTML = `
+                    <div class="flex items-center space-x-2 truncate max-w-[180px]">
+                        <img src="${r.imagen || 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?w=100'}" class="w-7 h-7 object-cover rounded-lg">
+                        <span class="font-medium text-slate-800 truncate">${r.titulo}</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button onclick="prepararEdicion('${r.id}')" class="text-purple-600 hover:text-purple-800 px-2 py-1" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="eliminarRegalo('${r.id}')" class="text-rose-500 hover:text-rose-700 px-2 py-1" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                lista.appendChild(item);
+            });
+        }
+
+        // Cargar al iniciar la página
+        cargarRegalosDesdeNube();
+    </script>
+</body>
+</html>
